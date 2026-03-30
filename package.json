@@ -1,7 +1,7 @@
 {
   "name": "get-npm-meta",
   "type": "module",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "packageManager": "pnpm@10.33.0",
   "description": "A minimal, auth-aware npm metadata client with private registry support.",
   "author": "jinghaihan",

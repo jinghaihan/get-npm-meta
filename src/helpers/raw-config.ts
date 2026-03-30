@@ -2,10 +2,12 @@ import type { RawConfig } from './types'
 import { existsSync, readFileSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { join } from 'node:path'
+import process from 'node:process'
 import { NPM_CONFIG_ENV_PREFIX } from '../constants'
 
 const INTERNAL_UNDERSCORE_RE = /(?!^)_/gu
 const LINE_SPLIT_RE = /\r?\n/u
+const ENV_VAR_RE = /\$\{([^}]+)\}/g
 
 export function getUserConfigPath(env: NodeJS.ProcessEnv) {
   const envUserConfigPath = getEnvValue(env, `${NPM_CONFIG_ENV_PREFIX}userconfig`)
@@ -24,7 +26,7 @@ export function getEnvValue(env: NodeJS.ProcessEnv, expectedKey: string) {
   }
 }
 
-export function loadNpmrcFile(filePath: string): RawConfig {
+export function loadNpmrcFile(filePath: string, env: NodeJS.ProcessEnv = process.env): RawConfig {
   if (!existsSync(filePath))
     return {}
 
@@ -41,7 +43,8 @@ export function loadNpmrcFile(filePath: string): RawConfig {
       continue
 
     const key = trimmed.slice(0, separatorIndex).trim()
-    const value = trimQuotes(trimmed.slice(separatorIndex + 1).trim())
+    const rawValue = trimQuotes(trimmed.slice(separatorIndex + 1).trim())
+    const value = rawValue.replace(ENV_VAR_RE, (_, name) => env[name] ?? '')
     assignRawConfigValue(rawConfig, key, value)
   }
 

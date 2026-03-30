@@ -91,6 +91,30 @@ describe('loadNpmConfig', () => {
     expect(pickRegistry('@demo', config.npmConfigs)).toBe('https://scope.env.example/npm/')
   })
 
+  it('expands env var references in .npmrc values', () => {
+    const { home, project } = createTempWorkspace()
+    const ref = (name: string) => '$' + `{${name}}`
+
+    writeFileSync(join(project, '.npmrc'), [
+      `//registry.npmjs.org/:_authToken=${ref('TEST_TOKEN')}`,
+      `//other.example.com/:_authToken=${ref('MISSING_VAR')}`,
+      `//multi.example.com/:_authToken=${ref('A')}${ref('B')}`,
+      '//plain.example.com/:_authToken=static-token',
+    ].join('\n'))
+
+    const config = loadNpmConfig({
+      cwd: project,
+      env: { HOME: home, TEST_TOKEN: 'registry', A: 'multi', B: '-example' },
+    })
+
+    expect(config.authByRegistry).toEqual({
+      '//registry.npmjs.org/': { token: 'registry' },
+      // ${MISSING_VAR} expands to '' → empty token → filtered out (same as npm behavior)
+      '//multi.example.com/': { token: 'multi-example' },
+      '//plain.example.com/': { token: 'static-token' },
+    })
+  })
+
   it('parses registry auth and certificate-related request config', () => {
     const { home, project } = createTempWorkspace()
     const password = Buffer.from('secret', 'utf8').toString('base64')

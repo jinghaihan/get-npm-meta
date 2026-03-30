@@ -29,9 +29,9 @@ export function loadNpmConfig(options: NpmConfigOptions = {}): NpmConfig {
     'strict-ssl': String(DEFAULT_STRICT_SSL),
   }
 
-  mergeConfig(rawConfig, loadNpmrcFile(userConfigPath))
+  mergeConfig(rawConfig, loadNpmrcFile(userConfigPath, env))
   if (projectConfigPath)
-    mergeConfig(rawConfig, loadNpmrcFile(projectConfigPath))
+    mergeConfig(rawConfig, loadNpmrcFile(projectConfigPath, env))
   mergeConfig(rawConfig, loadEnvConfig(env))
 
   const registry = normalizeRegistry(readString(rawConfig.registry) ?? NPM_REGISTRY)
