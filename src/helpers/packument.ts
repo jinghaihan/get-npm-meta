@@ -5,6 +5,10 @@ export interface PackumentVersionProvenanceMeta {
   trustedPublisher?: boolean
 }
 
+export interface PackumentVersionStagedMeta {
+  staged?: boolean
+}
+
 export function getPackumentVersionProvenance(version: NpmPackumentVersion): PackumentVersionProvenanceMeta {
   const legacyProvenance = version.provenance ?? version.dist?.provenance
   const provenance = legacyProvenance === true || Boolean(version.dist?.attestations?.provenance)
@@ -14,4 +18,8 @@ export function getPackumentVersionProvenance(version: NpmPackumentVersion): Pac
     ...(provenance ? { provenance: true } : {}),
     ...(trustedPublisher ? { trustedPublisher: true } : {}),
   }
+}
+
+export function getPackumentVersionStaged(version: NpmPackumentVersion): PackumentVersionStagedMeta {
+  return version._npmUser?.approver ? { staged: true } : {}
 }

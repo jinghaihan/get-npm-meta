@@ -17,7 +17,7 @@ import type { PackageContext } from './context'
 import pRetry from 'p-retry'
 import { findMaxSatisfying, isValid, isValidRange, satisfies } from 'verkit'
 import { DEFAULT_RETRY_OPTIONS } from '../constants'
-import { getPackumentVersionProvenance } from '../helpers'
+import { getPackumentVersionProvenance, getPackumentVersionStaged } from '../helpers'
 
 interface NpmPackument {
   'dist-tags'?: Record<string, string>
@@ -261,6 +261,7 @@ function toPackageVersionMeta(version: NpmPackumentVersion, time?: string): Pack
     engines: version.engines,
     deprecated: version.deprecated,
     ...getPackumentVersionProvenance(version),
+    ...getPackumentVersionStaged(version),
     integrity: version.integrity ?? version.dist?.integrity,
   }
 }

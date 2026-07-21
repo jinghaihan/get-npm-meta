@@ -157,6 +157,7 @@ export interface NpaResult {
 
 export interface NpmPackumentVersion {
   _npmUser?: {
+    approver?: unknown
     trustedPublisher?: unknown
   }
   deprecated?: string

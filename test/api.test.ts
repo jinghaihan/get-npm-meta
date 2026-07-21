@@ -227,7 +227,7 @@ describe('api', () => {
     })
   })
 
-  it('normalizes provenance from registry attestation metadata', async () => {
+  it('normalizes registry publication metadata', async () => {
     const { home, project } = createTempWorkspace()
 
     writeFileSync(join(project, '.npmrc'), 'registry=https://private.example/npm/\n')
@@ -252,6 +252,10 @@ describe('api', () => {
           },
           '1.1.0': {
             _npmUser: {
+              approver: {
+                email: 'reviewer@example.com',
+                name: 'reviewer',
+              },
               trustedPublisher: {
                 id: 'github',
                 oidcConfigId: 'oidc:demo',
@@ -290,6 +294,7 @@ describe('api', () => {
         '1.1.0': {
           time: '2024-05-01T00:00:00.000Z',
           provenance: true,
+          staged: true,
           trustedPublisher: true,
         },
       },
