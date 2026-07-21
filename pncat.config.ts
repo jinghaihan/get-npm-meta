@@ -6,7 +6,6 @@ export default defineConfig({
       name: 'inlined',
       match: [
         'p-retry',
-        'semver-es',
         'validate-npm-package-name',
       ],
       priority: 0,

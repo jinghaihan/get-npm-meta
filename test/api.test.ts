@@ -277,7 +277,7 @@ describe('api', () => {
         },
         '1.1.0': {
           time: '2024-05-01T00:00:00.000Z',
-          provenance: 'trustedPublisher',
+          trustedPublisher: true,
         },
       },
       timeCreated: '2024-01-01T00:00:00.000Z',

@@ -8,13 +8,21 @@ interface PackumentVersionProvenance {
   provenance?: 'trustedPublisher' | boolean
 }
 
-export function getPackumentVersionProvenance(version: PackumentVersionProvenance): 'trustedPublisher' | boolean | undefined {
-  if (version.provenance !== undefined)
-    return version.provenance
+export interface PackumentVersionProvenanceMeta {
+  provenance?: boolean
+  trustedPublisher?: boolean
+}
 
-  if (version.dist?.provenance !== undefined)
-    return version.dist.provenance
+export function getPackumentVersionProvenance(version: PackumentVersionProvenance): PackumentVersionProvenanceMeta {
+  const raw = version.provenance
+    ?? version.dist?.provenance
+    ?? (version.dist?.attestations?.provenance ? true : undefined)
 
-  if (version.dist?.attestations?.provenance)
-    return true
+  if (raw === 'trustedPublisher')
+    return { trustedPublisher: true }
+
+  if (raw)
+    return { provenance: true }
+
+  return {}
 }
