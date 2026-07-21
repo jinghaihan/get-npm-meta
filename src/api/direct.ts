@@ -14,7 +14,7 @@ import type {
 } from '../types'
 import type { PackageContext } from './context'
 import pRetry from 'p-retry'
-import { maxSatisfying, satisfies, valid, validRange } from 'semver-es'
+import { findMaxSatisfying, isValid, isValidRange, satisfies } from 'verkit'
 import { DEFAULT_RETRY_OPTIONS } from '../constants'
 import { getPackumentVersionProvenance } from '../helpers'
 
@@ -205,10 +205,10 @@ function filterVersionsBySpecifier(
   if (taggedVersion)
     return availableVersions.includes(taggedVersion) ? [taggedVersion] : []
 
-  if (valid(specifier))
+  if (isValid(specifier))
     return availableVersions
 
-  if (validRange(specifier)) {
+  if (isValidRange(specifier)) {
     return availableVersions.filter(version =>
       satisfies(version, specifier, { includePrerelease: true, loose: loose ?? false }),
     )
@@ -233,8 +233,8 @@ function resolveLatestVersion(
   if (versions[specifier])
     return specifier
 
-  if (validRange(specifier))
-    return maxSatisfying(availableVersions, specifier) ?? null
+  if (isValidRange(specifier))
+    return findMaxSatisfying(availableVersions, specifier) ?? null
 
   return null
 }
@@ -273,7 +273,7 @@ function toPackageVersionMeta(version: NpmPackumentVersion, time?: string): Pack
     time,
     engines: version.engines,
     deprecated: version.deprecated,
-    provenance: getPackumentVersionProvenance(version),
+    ...getPackumentVersionProvenance(version),
     integrity: version.integrity ?? version.dist?.integrity,
   }
 }
