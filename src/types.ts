@@ -155,6 +155,23 @@ export interface NpaResult {
   rawSpec: string
 }
 
+export interface NpmPackumentVersion {
+  _npmUser?: {
+    trustedPublisher?: unknown
+  }
+  deprecated?: string
+  dist?: {
+    attestations?: {
+      provenance?: unknown
+    }
+    integrity?: string
+    provenance?: 'trustedPublisher' | boolean
+  }
+  engines?: Partial<Record<string, string>>
+  integrity?: string
+  provenance?: 'trustedPublisher' | boolean
+}
+
 /**
  * Options for `getLatestVersion()` and `getLatestVersionBatch()`.
  *

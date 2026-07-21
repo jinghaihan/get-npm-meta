@@ -251,7 +251,19 @@ describe('api', () => {
             },
           },
           '1.1.0': {
-            provenance: 'trustedPublisher',
+            _npmUser: {
+              trustedPublisher: {
+                id: 'github',
+                oidcConfigId: 'oidc:demo',
+              },
+            },
+            dist: {
+              attestations: {
+                provenance: {
+                  predicateType: 'https://slsa.dev/provenance/v1',
+                },
+              },
+            },
           },
         },
         'time': {
@@ -277,6 +289,7 @@ describe('api', () => {
         },
         '1.1.0': {
           time: '2024-05-01T00:00:00.000Z',
+          provenance: true,
           trustedPublisher: true,
         },
       },

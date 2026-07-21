@@ -4,6 +4,7 @@ import type {
   GetVersionsOptions,
   InferGetLatestVersionResult,
   InferGetVersionsResult,
+  NpmPackumentVersion,
   PackageError,
   PackageVersionMeta,
   PackageVersionsInfo,
@@ -23,20 +24,6 @@ interface NpmPackument {
   'name'?: string
   'time'?: Record<string, string>
   'versions'?: Record<string, NpmPackumentVersion>
-}
-
-interface NpmPackumentVersion {
-  deprecated?: string
-  dist?: {
-    attestations?: {
-      provenance?: unknown
-    }
-    integrity?: string
-    provenance?: 'trustedPublisher' | boolean
-  }
-  engines?: Partial<Record<string, string>>
-  integrity?: string
-  provenance?: 'trustedPublisher' | boolean
 }
 
 export async function getLatestVersionFromRegistry<Metadata extends boolean = false, Throw extends boolean = true>(

@@ -1,28 +1,17 @@
-interface PackumentVersionProvenance {
-  dist?: {
-    attestations?: {
-      provenance?: unknown
-    }
-    provenance?: 'trustedPublisher' | boolean
-  }
-  provenance?: 'trustedPublisher' | boolean
-}
+import type { NpmPackumentVersion } from '../types'
 
 export interface PackumentVersionProvenanceMeta {
   provenance?: boolean
   trustedPublisher?: boolean
 }
 
-export function getPackumentVersionProvenance(version: PackumentVersionProvenance): PackumentVersionProvenanceMeta {
-  const raw = version.provenance
-    ?? version.dist?.provenance
-    ?? (version.dist?.attestations?.provenance ? true : undefined)
+export function getPackumentVersionProvenance(version: NpmPackumentVersion): PackumentVersionProvenanceMeta {
+  const legacyProvenance = version.provenance ?? version.dist?.provenance
+  const provenance = legacyProvenance === true || Boolean(version.dist?.attestations?.provenance)
+  const trustedPublisher = legacyProvenance === 'trustedPublisher' || Boolean(version._npmUser?.trustedPublisher)
 
-  if (raw === 'trustedPublisher')
-    return { trustedPublisher: true }
-
-  if (raw)
-    return { provenance: true }
-
-  return {}
+  return {
+    ...(provenance ? { provenance: true } : {}),
+    ...(trustedPublisher ? { trustedPublisher: true } : {}),
+  }
 }
