@@ -80,6 +80,27 @@ describe('api', () => {
     expect(defaultRegistryApiMocks.getLatestVersion).toHaveBeenCalledWith('react', {})
   })
 
+  it('delegates existing packages named after Node.js core modules', async () => {
+    const { home, project } = createTempWorkspace()
+    const sentinel = {
+      name: 'buffer',
+      specifier: 'latest',
+      version: '6.0.3',
+      publishedAt: '2023-10-23T11:58:18.681Z',
+      lastSynced: 1,
+    }
+
+    defaultRegistryApiMocks.getLatestVersion.mockResolvedValueOnce(sentinel)
+
+    const result = await getLatestVersion('buffer', {
+      cwd: project,
+      env: { HOME: home },
+    })
+
+    expect(result).toEqual(sentinel)
+    expect(defaultRegistryApiMocks.getLatestVersion).toHaveBeenCalledWith('buffer', {})
+  })
+
   it('delegates getVersionsBatch to fast-npm-meta when every package uses the default registry', async () => {
     const { home, project } = createTempWorkspace()
     const sentinel = [

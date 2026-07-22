@@ -22,6 +22,24 @@ describe('parseNpmSpec', () => {
     })
   })
 
+  it('accepts existing packages named after Node.js core modules', () => {
+    expect(parseNpmSpec({ spec: 'buffer' })).toEqual({
+      raw: 'buffer',
+      name: 'buffer',
+      escapedName: 'buffer',
+      scope: undefined,
+      rawSpec: '',
+    })
+
+    expect(parseNpmSpec({ spec: 'buffer@latest' })).toEqual({
+      raw: 'buffer@latest',
+      name: 'buffer',
+      escapedName: 'buffer',
+      scope: undefined,
+      rawSpec: 'latest',
+    })
+  })
+
   it('parses a scoped package with a tag-like spec', () => {
     expect(parseNpmSpec({ spec: '@scope/foo@beta' })).toEqual({
       raw: '@scope/foo@beta',
@@ -75,6 +93,15 @@ describe('parseNpmSpec', () => {
   it('rejects invalid scoped package names', () => {
     expect(() => parseNpmSpec({ spec: '@scope/' })).toThrow(
       'Invalid scoped package spec "@scope/".',
+    )
+  })
+
+  it('rejects package names that are invalid for existing packages', () => {
+    expect(() => parseNpmSpec({ spec: 'node:buffer' })).toThrow(
+      'Unsupported url package spec "node:buffer" for get-npm-meta.',
+    )
+    expect(() => parseNpmSpec({ spec: 'foo bar' })).toThrow(
+      'Invalid package name "foo bar" in "foo bar".',
     )
   })
 })

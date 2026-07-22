@@ -81,7 +81,7 @@ function validatePackageName(name: string, rawSpec: string): void {
     throw createUnsupportedSpecError(rawSpec, 'local path')
 
   const packageNameValidation = validateNpmPackageName(name)
-  if (!packageNameValidation.validForNewPackages) {
+  if (!packageNameValidation.validForOldPackages) {
     throw createNpaError(
       `Invalid package name "${name}" in "${rawSpec}".`,
       'EINVALIDPACKAGENAME',
