@@ -90,6 +90,7 @@ function toDefaultOptions<T extends NpmConfigOptions>(options: T): Omit<T, keyof
     env: _env,
     userConfigPath: _userConfigPath,
     projectConfigPath: _projectConfigPath,
+    packageManagerConfigDir: _packageManagerConfigDir,
     ...defaultOptions
   } = options
 

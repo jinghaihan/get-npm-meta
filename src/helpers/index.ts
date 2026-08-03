@@ -1,3 +1,4 @@
+export * from './package-manager'
 export * from './packument'
 export * from './raw-config'
 export * from './registry'

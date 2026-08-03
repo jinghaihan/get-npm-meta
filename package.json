@@ -44,7 +44,9 @@
   },
   "dependencies": {
     "fast-npm-meta": "catalog:prod",
-    "verkit": "catalog:prod"
+    "smol-toml": "catalog:prod",
+    "verkit": "catalog:prod",
+    "yaml": "catalog:prod"
   },
   "devDependencies": {
     "tsdown": "catalog:build",

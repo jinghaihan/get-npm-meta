@@ -49,9 +49,15 @@ catalogs:
     fast-npm-meta:
       specifier: ^2.2.0
       version: 2.2.0
+    smol-toml:
+      specifier: ^1.7.1
+      version: 1.7.1
     verkit:
       specifier: ^0.1.2
       version: 0.1.2
+    yaml:
+      specifier: ^2.9.0
+      version: 2.9.0
   test:
     vitest:
       specifier: ^4.1.10
@@ -71,9 +77,15 @@ importers:
       fast-npm-meta:
         specifier: catalog:prod
         version: 2.2.0
+      smol-toml:
+        specifier: catalog:prod
+        version: 1.7.1
       verkit:
         specifier: catalog:prod
         version: 0.1.2
+      yaml:
+        specifier: catalog:prod
+        version: 2.9.0
     devDependencies:
       '@octohash/eslint-config':
         specifier: catalog:lint
@@ -2374,6 +2386,10 @@ packages:
   sisteransi@1.0.5:
     resolution: {integrity: sha512-bLGGlR1QxBcynn2d5YmDX4MGjlZvy2MRBDRNHLJ8VI6l6+9FUiyTFNJ0IveOSP0bcXgVDPRcfGqA0pjaqUpfVg==}
 
+  smol-toml@1.7.1:
+    resolution: {integrity: sha512-PPlsspAZ4jbMBu5DMFhfUGDQLu/vrL4SyBROVS37x8ynnVmFIs1VPBz1Co8Xks3TvpIaZXmU85y4DrQ+UyVFoQ==}
+    engines: {node: '>= 18'}
+
   source-map-js@1.2.1:
     resolution: {integrity: sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA==}
     engines: {node: '>=0.10.0'}
@@ -2679,11 +2695,6 @@ packages:
   yaml-eslint-parser@2.0.0:
     resolution: {integrity: sha512-h0uDm97wvT2bokfwwTmY6kJ1hp6YDFL0nRHwNKz8s/VD1FH/vvZjAKoMUE+un0eaYBSG7/c6h+lJTP+31tjgTw==}
     engines: {node: ^20.19.0 || ^22.13.0 || >=24}
-
-  yaml@2.8.2:
-    resolution: {integrity: sha512-mplynKqc1C2hTVYxd0PU2xQAc22TI1vShAYGksCCfxbn/dFwnHTNi1bvYsBTkhdUNtGIf5xNOg938rrSSYvS9A==}
-    engines: {node: '>= 14.6'}
-    hasBin: true
 
   yaml@2.9.0:
     resolution: {integrity: sha512-2AvhNX3mb8zd6Zy7INTtSpl1F15HW6Wnqj0srWlkKLcpYl/gMIMJiyuGq2KeI2YFxUPjdlB+3Lc10seMLtL4cA==}
@@ -4832,7 +4843,7 @@ snapshots:
 
   pnpm-workspace-yaml@1.6.0:
     dependencies:
-      yaml: 2.8.2
+      yaml: 2.9.0
 
   pnpm-workspace-yaml@1.6.1:
     dependencies:
@@ -4990,6 +5001,8 @@ snapshots:
   simple-git-hooks@2.13.1: {}
 
   sisteransi@1.0.5: {}
+
+  smol-toml@1.7.1: {}
 
   source-map-js@1.2.1: {}
 
@@ -5253,9 +5266,7 @@ snapshots:
   yaml-eslint-parser@2.0.0:
     dependencies:
       eslint-visitor-keys: 5.0.1
-      yaml: 2.8.2
-
-  yaml@2.8.2: {}
+      yaml: 2.9.0
 
   yaml@2.9.0: {}
 

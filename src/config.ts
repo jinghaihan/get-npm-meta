@@ -9,6 +9,7 @@ import {
   getUserConfigPath,
   loadEnvConfig,
   loadNpmrcFile,
+  loadPackageManagerConfig,
   mergeConfig,
   normalizeRegistry,
   readBoolean,
@@ -23,6 +24,9 @@ export function loadNpmConfig(options: NpmConfigOptions = {}): NpmConfig {
   const projectConfigPath = options.projectConfigPath === false
     ? undefined
     : (options.projectConfigPath ?? join(cwd, '.npmrc'))
+  const packageManagerConfigDir = options.packageManagerConfigDir === false
+    ? undefined
+    : (options.packageManagerConfigDir ?? cwd)
 
   const rawConfig: Record<string, string | string[]> = {
     'registry': NPM_REGISTRY,
@@ -32,6 +36,8 @@ export function loadNpmConfig(options: NpmConfigOptions = {}): NpmConfig {
   mergeConfig(rawConfig, loadNpmrcFile(userConfigPath, env))
   if (projectConfigPath)
     mergeConfig(rawConfig, loadNpmrcFile(projectConfigPath, env))
+  if (packageManagerConfigDir)
+    mergeConfig(rawConfig, loadPackageManagerConfig(packageManagerConfigDir, env))
   mergeConfig(rawConfig, loadEnvConfig(env))
 
   const registry = normalizeRegistry(readString(rawConfig.registry) ?? NPM_REGISTRY)
