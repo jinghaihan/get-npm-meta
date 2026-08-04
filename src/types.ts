@@ -5,7 +5,7 @@ import type {
 
 export interface NpmConfigOptions {
   /**
-   * Working directory used to locate the default project `.npmrc`.
+   * Working directory used to locate the default project `.npmrc` and package manager config.
    *
    * @default `process.cwd()`
    */
@@ -29,6 +29,16 @@ export interface NpmConfigOptions {
    * @default `${cwd}/.npmrc`
    */
   projectConfigPath?: string | false
+  /**
+   * Directory the search for package manager config files carrying registry settings
+   * npm does not read starts from: `pnpm-workspace.yaml`, `.yarnrc.yml` and `bunfig.toml`.
+   * Only the detected package manager's own file is read, searching upward from this
+   * directory and stopping at the repository root.
+   * Set to `false` to skip loading package manager config entirely.
+   *
+   * @default `cwd`
+   */
+  packageManagerConfigDir?: string | false
 }
 
 export interface NpmConfig {

@@ -25,7 +25,7 @@ vi.mock('fast-npm-meta', async (importActual) => {
 })
 
 const tempDirs: string[] = []
-const tempRoot = fileURLToPath(new URL('./.tmp/', import.meta.url))
+const tempRoot = fileURLToPath(new URL('./.tmp-api/', import.meta.url))
 
 function createTempWorkspace() {
   mkdirSync(tempRoot, { recursive: true })

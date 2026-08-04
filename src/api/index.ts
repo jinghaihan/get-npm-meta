@@ -18,7 +18,7 @@ export async function getLatestVersion<Metadata extends boolean = false, Throw e
   spec: string,
   options: GetLatestVersionOptions<Metadata, Throw> = {},
 ): Promise<InferGetLatestVersionResult<Metadata, Throw>> {
-  const [context] = resolvePackageContexts([spec], options)
+  const [context] = await resolvePackageContexts([spec], options)
 
   return getLatestVersionForContext(context, options)
 }
@@ -27,7 +27,7 @@ export async function getLatestVersionBatch<Metadata extends boolean = false, Th
   specs: string[],
   options: GetLatestVersionOptions<Metadata, Throw> = {},
 ): Promise<InferGetLatestVersionResult<Metadata, Throw>[]> {
-  const contexts = resolvePackageContexts(specs, options)
+  const contexts = await resolvePackageContexts(specs, options)
 
   if (contexts.every(context => isDefaultRegistry(context.registry))) {
     return getDefaultLatestVersionBatch(
@@ -43,7 +43,7 @@ export async function getVersions<Metadata extends boolean = false, Throw extend
   spec: string,
   options: GetVersionsOptions<Metadata, Throw> = {},
 ): Promise<InferGetVersionsResult<Metadata, Throw>> {
-  const [context] = resolvePackageContexts([spec], options)
+  const [context] = await resolvePackageContexts([spec], options)
 
   return getVersionsForContext(context, options)
 }
@@ -52,7 +52,7 @@ export async function getVersionsBatch<Metadata extends boolean = false, Throw e
   specs: string[],
   options: GetVersionsOptions<Metadata, Throw> = {},
 ): Promise<InferGetVersionsResult<Metadata, Throw>[]> {
-  const contexts = resolvePackageContexts(specs, options)
+  const contexts = await resolvePackageContexts(specs, options)
 
   if (contexts.every(context => isDefaultRegistry(context.registry))) {
     return getDefaultVersionsBatch(
@@ -65,7 +65,7 @@ export async function getVersionsBatch<Metadata extends boolean = false, Throw e
 }
 
 function getLatestVersionForContext<Metadata extends boolean, Throw extends boolean>(
-  context: ReturnType<typeof resolvePackageContexts>[number],
+  context: Awaited<ReturnType<typeof resolvePackageContexts>>[number],
   options: GetLatestVersionOptions<Metadata, Throw>,
 ) {
   if (isDefaultRegistry(context.registry))
@@ -75,7 +75,7 @@ function getLatestVersionForContext<Metadata extends boolean, Throw extends bool
 }
 
 function getVersionsForContext<Metadata extends boolean, Throw extends boolean>(
-  context: ReturnType<typeof resolvePackageContexts>[number],
+  context: Awaited<ReturnType<typeof resolvePackageContexts>>[number],
   options: GetVersionsOptions<Metadata, Throw>,
 ) {
   if (isDefaultRegistry(context.registry))
@@ -90,6 +90,7 @@ function toDefaultOptions<T extends NpmConfigOptions>(options: T): Omit<T, keyof
     env: _env,
     userConfigPath: _userConfigPath,
     projectConfigPath: _projectConfigPath,
+    packageManagerConfigDir: _packageManagerConfigDir,
     ...defaultOptions
   } = options
 

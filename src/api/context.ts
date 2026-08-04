@@ -15,8 +15,8 @@ export function isDefaultRegistry(registry: string): boolean {
   return normalizeRegistry(registry) === NPM_REGISTRY
 }
 
-export function resolvePackageContexts(specs: string[], options: NpmConfigOptions): PackageContext[] {
-  const config = loadNpmConfig(options)
+export async function resolvePackageContexts(specs: string[], options: NpmConfigOptions): Promise<PackageContext[]> {
+  const config = await loadNpmConfig(options)
 
   return specs.map(spec => resolvePackageContext(spec, config))
 }

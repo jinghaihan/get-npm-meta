@@ -31,18 +31,28 @@ const versions = await getVersions('@org/pkg', {
 
 `get-npm-meta` reads user and project `.npmrc`, applies `npm_config_*` overrides, resolves scoped registries, and forwards registry auth when needed.
 
+Registries declared in a package manager's own config file are picked up as well, since npm never reads them:
+
+- pnpm — `pnpm-workspace.yaml`: `registries`
+- Yarn Berry — `.yarnrc.yml`: `npmRegistryServer`, `npmScopes`, `npmRegistries`
+- Bun — `bunfig.toml`: `[install].registry`, `[install.scopes]`
+
+The active package manager is detected first, so only its own config file is read and one tool's settings never override another's. The file is searched for from `cwd` upward, stopping at the repository root, which is how a monorepo's root config applies to a nested package directory.
+
+They layer over `.npmrc` and below `npm_config_*` overrides, matching how each tool treats its own config. Bearer token auth is translated too, applying each tool's env var interpolation; basic auth is left to `.npmrc`. Pass `packageManagerConfigDir: false` to skip them.
+
 Supported specs are registry package specs such as `foo`, `foo@latest`, `foo@^1`, and `@scope/foo@beta`.
 
 ## API
 
 > [!TIP]
-> The request options extend `fast-npm-meta` with npm config loading controls: `cwd`, `env`, `userConfigPath`, and `projectConfigPath`.
+> The request options extend `fast-npm-meta` with npm config loading controls: `cwd`, `env`, `userConfigPath`, `projectConfigPath`, and `packageManagerConfigDir`.
 
 - `getLatestVersion(spec, options)`
 - `getLatestVersionBatch(specs, options)`
 - `getVersions(spec, options)`
 - `getVersionsBatch(specs, options)`
-- `loadNpmConfig(options)`
+- `loadNpmConfig(options)` — async, since package manager detection reads the file system
 - `parseNpmSpec({ spec })`
 
 ## Compared to fast-npm-meta
