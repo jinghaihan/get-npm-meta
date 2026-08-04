@@ -7,7 +7,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { loadNpmConfig } from '../src/config'
 
 const tempDirs: string[] = []
-const tempRoot = fileURLToPath(new URL('./.tmp/', import.meta.url))
+const tempRoot = fileURLToPath(new URL('./.tmp-config/', import.meta.url))
 
 function createTempWorkspace() {
   mkdirSync(tempRoot, { recursive: true })
