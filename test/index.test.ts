@@ -272,6 +272,44 @@ describe('loadNpmConfig with package manager config', () => {
     expect(config.registry).toBe('https://pnpm.example.com/')
   })
 
+  it('finds package manager config in the repository root', async () => {
+    const { home, project } = createTempWorkspace()
+    const nested = join(project, 'packages', 'app')
+
+    mkdirSync(nested, { recursive: true })
+    mkdirSync(join(project, '.git'))
+    writeFileSync(join(project, 'pnpm-workspace.yaml'), [
+      'registries:',
+      '  default: https://root.example.com/',
+    ].join('\n'))
+
+    const config = await loadNpmConfig({
+      cwd: nested,
+      env: { HOME: home },
+    })
+
+    expect(config.registry).toBe('https://root.example.com/')
+  })
+
+  it('does not search beyond the repository boundary', async () => {
+    const { home, project } = createTempWorkspace()
+    const nested = join(project, 'packages', 'app')
+
+    mkdirSync(nested, { recursive: true })
+    mkdirSync(join(project, '.git'))
+    writeFileSync(join(tempRoot, 'pnpm-workspace.yaml'), [
+      'registries:',
+      '  default: https://outside.example.com/',
+    ].join('\n'))
+
+    const config = await loadNpmConfig({
+      cwd: nested,
+      env: { HOME: home },
+    })
+
+    expect(config.registry).toBe(NPM_REGISTRY)
+  })
+
   it('applies package manager config over .npmrc and env over both', async () => {
     const { home, project } = createTempWorkspace()
 

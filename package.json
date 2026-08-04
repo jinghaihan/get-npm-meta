@@ -43,6 +43,7 @@
     "prepublishOnly": "pnpm build"
   },
   "dependencies": {
+    "empathic": "catalog:prod",
     "fast-npm-meta": "catalog:prod",
     "package-manager-detector": "catalog:prod",
     "smol-toml": "catalog:prod",

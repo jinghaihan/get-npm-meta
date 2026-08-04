@@ -1,14 +1,27 @@
-import type { RawConfig } from '../types'
-import { join } from 'node:path'
+import type { AgentName } from 'package-manager-detector'
+import type { PackageManagerConfig, RawConfig } from '../types'
+import { dirname } from 'node:path'
 import process from 'node:process'
+import { up as findUp } from 'empathic/find'
 import { detect } from 'package-manager-detector'
 import { loadBunfigFile } from './bun'
 import { loadPnpmWorkspaceFile } from './pnpm'
 import { loadYarnRcFile } from './yarn'
 
-const PNPM_WORKSPACE_FILE = 'pnpm-workspace.yaml'
-const YARN_RC_FILE = '.yarnrc.yml'
-const BUNFIG_FILE = 'bunfig.toml'
+const PACKAGE_MANAGER_CONFIGS: Partial<Record<AgentName, PackageManagerConfig>> = {
+  pnpm: {
+    file: 'pnpm-workspace.yaml',
+    load: loadPnpmWorkspaceFile,
+  },
+  yarn: {
+    file: '.yarnrc.yml',
+    load: loadYarnRcFile,
+  },
+  bun: {
+    file: 'bunfig.toml',
+    load: loadBunfigFile,
+  },
+}
 
 /**
  * Load registry config from the package manager files that npm itself never reads:
@@ -24,16 +37,19 @@ const BUNFIG_FILE = 'bunfig.toml'
  * Only bearer token auth is translated; basic auth is left to `.npmrc`.
  */
 export async function loadPackageManagerConfig(dir: string, env: NodeJS.ProcessEnv = process.env): Promise<RawConfig> {
-  const packageManager = await detect({ cwd: dir })
+  const repositoryRoot = findRepositoryRoot(dir)
+  const packageManager = await detect({ cwd: dir, stopDir: repositoryRoot })
+  const config = packageManager ? PACKAGE_MANAGER_CONFIGS[packageManager.name] : undefined
+  const filePath = config && findPackageManagerFile(config.file, dir, repositoryRoot)
 
-  switch (packageManager?.name) {
-    case 'pnpm':
-      return loadPnpmWorkspaceFile(join(dir, PNPM_WORKSPACE_FILE))
-    case 'yarn':
-      return loadYarnRcFile(join(dir, YARN_RC_FILE), env)
-    case 'bun':
-      return loadBunfigFile(join(dir, BUNFIG_FILE), env)
-    default:
-      return {}
-  }
+  return filePath && config ? config.load(filePath, env) : {}
+}
+
+function findRepositoryRoot(dir: string): string {
+  const gitPath = findUp('.git', { cwd: dir })
+  return gitPath ? dirname(gitPath) : dir
+}
+
+function findPackageManagerFile(fileName: string, dir: string, repositoryRoot: string): string | undefined {
+  return findUp(fileName, { cwd: dir, last: repositoryRoot })
 }
