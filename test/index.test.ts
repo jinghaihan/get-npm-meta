@@ -29,9 +29,9 @@ afterEach(() => {
 })
 
 describe('loadNpmConfig', () => {
-  it('returns request defaults when no config files exist', () => {
+  it('returns request defaults when no config files exist', async () => {
     const { home, project } = createTempWorkspace()
-    const config = loadNpmConfig({
+    const config = await loadNpmConfig({
       cwd: project,
       env: { HOME: home },
     })
@@ -50,7 +50,7 @@ describe('loadNpmConfig', () => {
     })
   })
 
-  it('applies project config over user config and env over both', () => {
+  it('applies project config over user config and env over both', async () => {
     const { home, project } = createTempWorkspace()
 
     writeFileSync(join(home, '.npmrc'), [
@@ -65,7 +65,7 @@ describe('loadNpmConfig', () => {
       'noproxy=internal.example.com',
     ].join('\n'))
 
-    const config = loadNpmConfig({
+    const config = await loadNpmConfig({
       cwd: project,
       env: {
         'HOME': home,
@@ -91,7 +91,7 @@ describe('loadNpmConfig', () => {
     expect(pickRegistry('@demo', config.npmConfigs)).toBe('https://scope.env.example/npm/')
   })
 
-  it('expands env var references in .npmrc values', () => {
+  it('expands env var references in .npmrc values', async () => {
     const { home, project } = createTempWorkspace()
     const ref = (name: string) => '$' + `{${name}}`
 
@@ -102,7 +102,7 @@ describe('loadNpmConfig', () => {
       '//plain.example.com/:_authToken=static-token',
     ].join('\n'))
 
-    const config = loadNpmConfig({
+    const config = await loadNpmConfig({
       cwd: project,
       env: { HOME: home, TEST_TOKEN: 'registry', A: 'multi', B: '-example' },
     })
@@ -115,7 +115,7 @@ describe('loadNpmConfig', () => {
     })
   })
 
-  it('parses registry auth and certificate-related request config', () => {
+  it('parses registry auth and certificate-related request config', async () => {
     const { home, project } = createTempWorkspace()
     const password = Buffer.from('secret', 'utf8').toString('base64')
 
@@ -130,7 +130,7 @@ describe('loadNpmConfig', () => {
       '//mtls.example.com/:keyfile=/tmp/client-key.pem',
     ].join('\n'))
 
-    const config = loadNpmConfig({
+    const config = await loadNpmConfig({
       cwd: project,
       env: { HOME: home },
     })
@@ -153,7 +153,7 @@ describe('loadNpmConfig', () => {
 })
 
 describe('loadNpmConfig with package manager config', () => {
-  it('reads registries from pnpm-workspace.yaml', () => {
+  it('reads registries from pnpm-workspace.yaml', async () => {
     const { home, project } = createTempWorkspace()
 
     writeFileSync(join(project, 'pnpm-workspace.yaml'), [
@@ -164,7 +164,7 @@ describe('loadNpmConfig with package manager config', () => {
       '  "@another": https://npm.another.dev/',
     ].join('\n'))
 
-    const config = loadNpmConfig({
+    const config = await loadNpmConfig({
       cwd: project,
       env: { HOME: home },
     })
@@ -178,10 +178,11 @@ describe('loadNpmConfig with package manager config', () => {
     expect(pickRegistry('@my-scope', config.npmConfigs)).toBe('https://npm.example.com/')
   })
 
-  it('reads registries and token auth from .yarnrc.yml', () => {
+  it('reads registries and token auth from .yarnrc.yml', async () => {
     const { home, project } = createTempWorkspace()
     const ref = (name: string) => '$' + `{${name}}`
 
+    writeFileSync(join(project, 'yarn.lock'), '')
     writeFileSync(join(project, '.yarnrc.yml'), [
       'npmRegistryServer: "https://registry.example.com/"',
       `npmAuthToken: "${ref('TEST_DEFAULT_TOKEN')}"`,
@@ -199,7 +200,7 @@ describe('loadNpmConfig with package manager config', () => {
       `    npmAuthToken: "${ref('TEST_UNSET_TOKEN-unset-token')}"`,
     ].join('\n'))
 
-    const config = loadNpmConfig({
+    const config = await loadNpmConfig({
       cwd: project,
       env: {
         HOME: home,
@@ -224,9 +225,10 @@ describe('loadNpmConfig with package manager config', () => {
     expect(pickRegistry('@my-company', config.npmConfigs)).toBe('https://npm.mycompany.com/')
   })
 
-  it('reads registries and token auth from bunfig.toml', () => {
+  it('reads registries and token auth from bunfig.toml', async () => {
     const { home, project } = createTempWorkspace()
 
+    writeFileSync(join(project, 'bun.lock'), '')
     writeFileSync(join(project, 'bunfig.toml'), [
       '[install]',
       'registry = "https://registry.example.com/"',
@@ -236,7 +238,7 @@ describe('loadNpmConfig with package manager config', () => {
       'another = "https://npm.another.dev/"',
     ].join('\n'))
 
-    const config = loadNpmConfig({
+    const config = await loadNpmConfig({
       cwd: project,
       env: { HOME: home, TEST_BUN_TOKEN: 'bun-token' },
     })
@@ -252,7 +254,25 @@ describe('loadNpmConfig with package manager config', () => {
     expect(pickRegistry('@myorg', config.npmConfigs)).toBe('https://npm.myorg.com/')
   })
 
-  it('applies package manager config over .npmrc and env over both', () => {
+  it('loads only the detected package manager config', async () => {
+    const { home, project } = createTempWorkspace()
+
+    writeFileSync(join(project, 'pnpm-workspace.yaml'), [
+      'registries:',
+      '  default: https://pnpm.example.com/',
+    ].join('\n'))
+    writeFileSync(join(project, '.yarnrc.yml'), 'npmRegistryServer: https://yarn.example.com/\n')
+    writeFileSync(join(project, 'bunfig.toml'), '[install]\nregistry = "https://bun.example.com/"\n')
+
+    const config = await loadNpmConfig({
+      cwd: project,
+      env: { HOME: home },
+    })
+
+    expect(config.registry).toBe('https://pnpm.example.com/')
+  })
+
+  it('applies package manager config over .npmrc and env over both', async () => {
     const { home, project } = createTempWorkspace()
 
     writeFileSync(join(project, '.npmrc'), [
@@ -267,7 +287,7 @@ describe('loadNpmConfig with package manager config', () => {
       '  "@demo": https://scope.workspace.example/npm/',
     ].join('\n'))
 
-    const config = loadNpmConfig({
+    const config = await loadNpmConfig({
       cwd: project,
       env: {
         'HOME': home,
@@ -282,7 +302,7 @@ describe('loadNpmConfig with package manager config', () => {
     })
   })
 
-  it('skips package manager config when disabled', () => {
+  it('skips package manager config when disabled', async () => {
     const { home, project } = createTempWorkspace()
 
     writeFileSync(join(project, 'pnpm-workspace.yaml'), [
@@ -290,7 +310,7 @@ describe('loadNpmConfig with package manager config', () => {
       '  default: https://workspace.example/npm/',
     ].join('\n'))
 
-    const config = loadNpmConfig({
+    const config = await loadNpmConfig({
       cwd: project,
       env: { HOME: home },
       packageManagerConfigDir: false,
@@ -299,13 +319,14 @@ describe('loadNpmConfig with package manager config', () => {
     expect(config.registry).toBe(NPM_REGISTRY)
   })
 
-  it('ignores unparseable package manager config', () => {
+  it('ignores unparseable package manager config', async () => {
     const { home, project } = createTempWorkspace()
 
     writeFileSync(join(project, '.npmrc'), 'registry=https://project.example/npm/')
+    writeFileSync(join(project, 'bun.lock'), '')
     writeFileSync(join(project, 'bunfig.toml'), '[install')
 
-    const config = loadNpmConfig({
+    const config = await loadNpmConfig({
       cwd: project,
       env: { HOME: home },
     })

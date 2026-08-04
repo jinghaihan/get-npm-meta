@@ -25,6 +25,7 @@ catalogs:
     lint-staged: ^17.1.0
   prod:
     fast-npm-meta: ^2.2.0
+    package-manager-detector: ^1.8.0
     smol-toml: ^1.7.1
     verkit: ^0.1.2
     yaml: ^2.9.0

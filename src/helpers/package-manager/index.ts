@@ -1,6 +1,7 @@
 import type { RawConfig } from '../types'
 import { join } from 'node:path'
 import process from 'node:process'
+import { detect } from 'package-manager-detector'
 import { loadBunfigFile } from './bun'
 import { loadPnpmWorkspaceFile } from './pnpm'
 import { loadYarnRcFile } from './yarn'
@@ -18,14 +19,21 @@ const BUNFIG_FILE = 'bunfig.toml'
  *
  * Values are translated into npm config keys (`registry`, `<scope>:registry` and
  * `//host/path/:_authToken`) so registry picking and auth resolution stay shared
- * with `.npmrc`.
+ * with `.npmrc`. Only the detected package manager's config is loaded.
  *
  * Only bearer token auth is translated; basic auth is left to `.npmrc`.
  */
-export function loadPackageManagerConfig(dir: string, env: NodeJS.ProcessEnv = process.env): RawConfig {
-  return {
-    ...loadPnpmWorkspaceFile(join(dir, PNPM_WORKSPACE_FILE)),
-    ...loadYarnRcFile(join(dir, YARN_RC_FILE), env),
-    ...loadBunfigFile(join(dir, BUNFIG_FILE), env),
+export async function loadPackageManagerConfig(dir: string, env: NodeJS.ProcessEnv = process.env): Promise<RawConfig> {
+  const packageManager = await detect({ cwd: dir })
+
+  switch (packageManager?.name) {
+    case 'pnpm':
+      return loadPnpmWorkspaceFile(join(dir, PNPM_WORKSPACE_FILE))
+    case 'yarn':
+      return loadYarnRcFile(join(dir, YARN_RC_FILE), env)
+    case 'bun':
+      return loadBunfigFile(join(dir, BUNFIG_FILE), env)
+    default:
+      return {}
   }
 }
