@@ -30,8 +30,10 @@ export interface NpmConfigOptions {
    */
   projectConfigPath?: string | false
   /**
-   * Directory searched for package manager config files carrying registry settings
-   * npm does not read: `pnpm-workspace.yaml`, `.yarnrc.yml` and `bunfig.toml`.
+   * Directory the search for package manager config files carrying registry settings
+   * npm does not read starts from: `pnpm-workspace.yaml`, `.yarnrc.yml` and `bunfig.toml`.
+   * Only the detected package manager's own file is read, searching upward from this
+   * directory and stopping at the repository root.
    * Set to `false` to skip loading package manager config entirely.
    *
    * @default `cwd`
