@@ -178,6 +178,30 @@ describe('loadNpmConfig with package manager config', () => {
     expect(pickRegistry('@my-scope', config.npmConfigs)).toBe('https://npm.example.com/')
   })
 
+  it('ignores env placeholders in pnpm registry URLs', async () => {
+    const { home, project } = createTempWorkspace()
+    const privateRegistry = '$' + '{PRIVATE_REGISTRY}'
+    const privateScopedRegistry = '$' + '{PRIVATE_SCOPED_REGISTRY}'
+
+    writeFileSync(join(project, '.npmrc'), 'registry=https://npmrc.example.com/\n')
+    writeFileSync(join(project, 'pnpm-workspace.yaml'), [
+      'registries:',
+      `  default: ${privateRegistry}`,
+      `  "@private": ${privateScopedRegistry}`,
+      '  "@valid": https://valid.example.com/',
+    ].join('\n'))
+
+    const config = await loadNpmConfig({
+      cwd: project,
+      env: { HOME: home },
+    })
+
+    expect(config.registry).toBe('https://npmrc.example.com/')
+    expect(config.scopeRegistries).toEqual({
+      '@valid': 'https://valid.example.com/',
+    })
+  })
+
   it('reads registries and token auth from .yarnrc.yml', async () => {
     const { home, project } = createTempWorkspace()
     const ref = (name: string) => '$' + `{${name}}`
